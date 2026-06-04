@@ -1,25 +1,20 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 
-public class RabbitMQConsumer
+public class RabbitMQConsumer : IMessageConsumer
 {
-    private readonly string _host = "localhost";
-    private readonly string _vhost = "ecommerce";
-    private readonly string _user = "guest";
-    private readonly string _pass = "guest";
+    private readonly RabbitMQConnection _connection;
 
-    public async Task ConsumirPedidos()
+    public RabbitMQConsumer(IConfiguration configuration)
     {
-        var factory = new ConnectionFactory()
-        {
-            HostName = _host,
-            VirtualHost = _vhost,
-            UserName = _user,
-            Password = _pass
-        };
+        _connection = new RabbitMQConnection(configuration);
+    }
 
-        var connection = await factory.CreateConnectionAsync();
+    public async Task ConsumeAsync(string queue, Func<string, Task> onMessageReceived)
+    {
+        var connection = await _connection.CreateConnectionAsync();
         var channel = await connection.CreateChannelAsync();
 
         var consumer = new AsyncEventingBasicConsumer(channel);
@@ -28,18 +23,26 @@ public class RabbitMQConsumer
         {
             var body = ea.Body.ToArray();
             var mensaje = Encoding.UTF8.GetString(body);
-            Console.WriteLine($"[✓] Cola: {ea.RoutingKey}");
-            Console.WriteLine($"    Mensaje: {mensaje}\n");
+            await onMessageReceived(mensaje);
             await channel.BasicAckAsync(ea.DeliveryTag, false);
         };
 
         await channel.BasicConsumeAsync(
-            queue: "ecommerce.notificaciones",
+            queue: queue,
             autoAck: false,
             consumer: consumer
         );
 
-        Console.WriteLine("Esperando mensajes... Presiona Enter para salir.");
+        Console.WriteLine($"[Consumer] Escuchando cola: {queue}");
         Console.ReadLine();
+    }
+
+    public async Task ConsumirPedidos()
+    {
+        await ConsumeAsync("ecommerce.notificaciones", async mensaje =>
+        {
+            Console.WriteLine($"[NOTIFICACIONES] Mensaje recibido:");
+            Console.WriteLine($"  {mensaje}\n");
+        });
     }
 }

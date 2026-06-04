@@ -1,54 +1,32 @@
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 
-public class RabbitMQConsumerInventario
+public class RabbitMQConsumerInventario : IMessageConsumer
 {
-    private readonly string _host = "localhost";
-    private readonly string _vhost = "ecommerce";
-    private readonly string _user = "guest";
-    private readonly string _pass = "guest";
+    private readonly RabbitMQConsumer _consumer;
+
+    public RabbitMQConsumerInventario(IConfiguration configuration)
+    {
+        _consumer = new RabbitMQConsumer(configuration);
+    }
+
+    public async Task ConsumeAsync(string queue, Func<string, Task> onMessageReceived)
+    {
+        await _consumer.ConsumeAsync(queue, onMessageReceived);
+    }
 
     public async Task ConsumirInventario()
     {
-        var factory = new ConnectionFactory()
+        await ConsumeAsync("ecommerce.inventario", async mensaje =>
         {
-            HostName = _host,
-            VirtualHost = _vhost,
-            UserName = _user,
-            Password = _pass
-        };
-
-        var connection = await factory.CreateConnectionAsync();
-        var channel = await connection.CreateChannelAsync();
-
-        var consumer = new AsyncEventingBasicConsumer(channel);
-
-        consumer.ReceivedAsync += async (model, ea) =>
-        {
-            var body = ea.Body.ToArray();
-            var mensaje = Encoding.UTF8.GetString(body);
             var pedido = JsonSerializer.Deserialize<PedidoEvent>(mensaje);
 
             Console.WriteLine($"[INVENTARIO] Nuevo pedido recibido:");
             Console.WriteLine($"  ID:       {pedido?.PedidoId}");
             Console.WriteLine($"  Producto: {pedido?.Producto}");
             Console.WriteLine($"  Cantidad: {pedido?.Cantidad}");
-            Console.WriteLine($"  → Descontando stock...");
-            Console.WriteLine($"  ✓ Stock actualizado correctamente!\n");
-
-            await channel.BasicAckAsync(ea.DeliveryTag, false);
-        };
-
-        await channel.BasicConsumeAsync(
-            queue: "ecommerce.inventario",
-            autoAck: false,
-            consumer: consumer
-        );
-
-        Console.WriteLine("=== Servicio de INVENTARIO escuchando ===");
-        Console.WriteLine("Esperando pedidos... Presiona Enter para salir.\n");
-        Console.ReadLine();
+            Console.WriteLine($"  Descontando stock...");
+            Console.WriteLine($"  Stock actualizado correctamente!\n");
+        });
     }
 }

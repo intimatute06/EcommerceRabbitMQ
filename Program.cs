@@ -1,4 +1,11 @@
-﻿Console.WriteLine("=== Sistema de Pedidos E-commerce ===\n");
+﻿using Microsoft.Extensions.Configuration;
+
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(AppContext.BaseDirectory)
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .Build();
+
+Console.WriteLine("=== Sistema de Pedidos E-commerce ===\n");
 
 Console.WriteLine("¿Qué deseas hacer?");
 Console.WriteLine("1. Publicar un pedido (Productor)");
@@ -10,10 +17,10 @@ var opcion = Console.ReadLine();
 
 if (opcion == "1")
 {
-    var producer = new RabbitMQProducer();
+    var producer = new RabbitMQPublisher(configuration);
 
     Console.WriteLine("\n--- Ingresa los datos del pedido ---");
-    
+
     Console.Write("Nombre del cliente: ");
     var cliente = Console.ReadLine() ?? "Cliente";
 
@@ -45,11 +52,11 @@ if (opcion == "1")
 }
 else if (opcion == "2")
 {
-    var consumer = new RabbitMQConsumer();
+    var consumer = new RabbitMQConsumer(configuration);
     await consumer.ConsumirPedidos();
 }
 else if (opcion == "3")
 {
-    var consumerInventario = new RabbitMQConsumerInventario();
+    var consumerInventario = new RabbitMQConsumerInventario(configuration);
     await consumerInventario.ConsumirInventario();
 }

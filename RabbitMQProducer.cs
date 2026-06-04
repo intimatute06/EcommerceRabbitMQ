@@ -1,52 +1,43 @@
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 
-public class RabbitMQProducer
+public class RabbitMQPublisher : IMessagePublisher
 {
-    private readonly string _host = "localhost";
-    private readonly string _vhost = "ecommerce";
-    private readonly string _user = "guest";
-    private readonly string _pass = "guest";
+    private readonly RabbitMQConnection _connection;
+
+    public RabbitMQPublisher(IConfiguration configuration)
+    {
+        _connection = new RabbitMQConnection(configuration);
+    }
+
+    public async Task PublishAsync<T>(T message, string exchange, string routingKey)
+    {
+        await using var connection = await _connection.CreateConnectionAsync();
+        await using var channel = await connection.CreateChannelAsync();
+
+        var json = JsonSerializer.Serialize(message);
+        var body = Encoding.UTF8.GetBytes(json);
+
+        await channel.BasicPublishAsync(
+            exchange: exchange,
+            routingKey: routingKey,
+            body: body
+        );
+
+        Console.WriteLine($"[Publisher] Exchange: {exchange} | RoutingKey: {routingKey} | Mensaje: {json}");
+    }
 
     public async Task PublicarPedido(PedidoEvent pedido)
     {
-        var factory = new ConnectionFactory()
-        {
-            HostName = _host,
-            VirtualHost = _vhost,
-            UserName = _user,
-            Password = _pass
-        };
-
-        await using var connection = await factory.CreateConnectionAsync();
-        await using var channel = await connection.CreateChannelAsync();
-
-        var json = JsonSerializer.Serialize(pedido);
-        var body = Encoding.UTF8.GetBytes(json);
-
-        // 1. Direct Exchange - pedido específico
-        await channel.BasicPublishAsync(
-            exchange: "ecommerce.direct",
-            routingKey: "pedido.nuevo",
-            body: body
-        );
+        await PublishAsync(pedido, "ecommerce.direct", "pedido.nuevo");
         Console.WriteLine($"[Direct] Pedido enviado: {pedido.PedidoId}");
 
-        // 2. Fanout Exchange - notifica a todos
-        await channel.BasicPublishAsync(
-            exchange: "ecommerce.fanout",
-            routingKey: "",
-            body: body
-        );
+        await PublishAsync(pedido, "ecommerce.fanout", "");
         Console.WriteLine($"[Fanout] Pedido broadcast: {pedido.PedidoId}");
 
-        // 3. Topic Exchange - con patrón
-        await channel.BasicPublishAsync(
-            exchange: "ecommerce.topic",
-            routingKey: "pedido.creado",
-            body: body
-        );
+        await PublishAsync(pedido, "ecommerce.topic", "pedido.creado");
         Console.WriteLine($"[Topic] Pedido publicado: {pedido.PedidoId}");
     }
 }

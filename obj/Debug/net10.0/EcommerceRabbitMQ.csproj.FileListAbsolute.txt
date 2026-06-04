@@ -16,3 +16,14 @@ C:\Users\NW\Desktop\Arquitectura\Arquitectura\EcommerceRabbitMQ\obj\Debug\net10.
 C:\Users\NW\Desktop\Arquitectura\Arquitectura\EcommerceRabbitMQ\obj\Debug\net10.0\EcommerceRabbitMQ.pdb
 C:\Users\NW\Desktop\Arquitectura\Arquitectura\EcommerceRabbitMQ\obj\Debug\net10.0\EcommerceRabbitMQ.genruntimeconfig.cache
 C:\Users\NW\Desktop\Arquitectura\Arquitectura\EcommerceRabbitMQ\obj\Debug\net10.0\ref\EcommerceRabbitMQ.dll
+C:\Users\NW\Desktop\Arquitectura\Arquitectura\EcommerceRabbitMQ\obj\Debug\net10.0\EcommerceRabbitMQ.sourcelink.json
+C:\Users\NW\Desktop\Arquitectura\Arquitectura\EcommerceRabbitMQ\bin\Debug\net10.0\appsettings.json
+C:\Users\NW\Desktop\Arquitectura\Arquitectura\EcommerceRabbitMQ\bin\Debug\net10.0\Microsoft.Extensions.Configuration.dll
+C:\Users\NW\Desktop\Arquitectura\Arquitectura\EcommerceRabbitMQ\bin\Debug\net10.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\NW\Desktop\Arquitectura\Arquitectura\EcommerceRabbitMQ\bin\Debug\net10.0\Microsoft.Extensions.Configuration.Binder.dll
+C:\Users\NW\Desktop\Arquitectura\Arquitectura\EcommerceRabbitMQ\bin\Debug\net10.0\Microsoft.Extensions.Configuration.FileExtensions.dll
+C:\Users\NW\Desktop\Arquitectura\Arquitectura\EcommerceRabbitMQ\bin\Debug\net10.0\Microsoft.Extensions.Configuration.Json.dll
+C:\Users\NW\Desktop\Arquitectura\Arquitectura\EcommerceRabbitMQ\bin\Debug\net10.0\Microsoft.Extensions.FileProviders.Abstractions.dll
+C:\Users\NW\Desktop\Arquitectura\Arquitectura\EcommerceRabbitMQ\bin\Debug\net10.0\Microsoft.Extensions.FileProviders.Physical.dll
+C:\Users\NW\Desktop\Arquitectura\Arquitectura\EcommerceRabbitMQ\bin\Debug\net10.0\Microsoft.Extensions.FileSystemGlobbing.dll
+C:\Users\NW\Desktop\Arquitectura\Arquitectura\EcommerceRabbitMQ\bin\Debug\net10.0\Microsoft.Extensions.Primitives.dll
